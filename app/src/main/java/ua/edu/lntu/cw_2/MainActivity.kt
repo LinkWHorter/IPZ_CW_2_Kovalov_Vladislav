@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,7 +22,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Используем LaunchedEffect для отслеживания состояния входа
                     var signInState by remember { mutableStateOf(SignInState.SignIn) }
 
                     when (val state = signInState) {
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                                 signInState = SignInState.SignInSuccess(email)
                             }
                         }
-                        is SignInState.SignInSuccess -> SignInSuccessScreen(email = state.email) {
+                        is SignInState.SignInSuccess -> SignInSuccessScreen(state.email) {
                             signInState = SignInState.SignIn
                         }
                     }
