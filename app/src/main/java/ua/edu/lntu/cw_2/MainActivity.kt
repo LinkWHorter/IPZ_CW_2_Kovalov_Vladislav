@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                                 signInState = SignInState.SignInSuccess(email)
                             }
                         }
-                        is SignInState.SignInSuccess -> SignInSuccessScreen(state.email) {
+                        is SignInState.SignInSuccess -> SignInSuccessScreen(email = state.email) {
                             signInState = SignInState.SignIn
                         }
                     }
