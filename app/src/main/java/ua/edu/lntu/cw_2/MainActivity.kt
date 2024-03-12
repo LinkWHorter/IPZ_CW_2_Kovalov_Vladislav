@@ -1,134 +1,129 @@
 package ua.edu.lntu.cw_2
 
 import android.os.Bundle
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ua.edu.lntu.cw_2.ui.theme.IPZ_CW_2_Kovalov_VladislavTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             IPZ_CW_2_Kovalov_VladislavTheme {
+                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var signInState by remember { mutableStateOf(SignInState.SignIn) }
-
-                    when (val state = signInState) {
-                        is SignInState.SignIn -> SignInScreen { email, password ->
-                            if (email.isNotEmpty() && password.isNotEmpty()) {
-                                signInState = SignInState.SignInSuccess(email)
-                            }
-                        }
-                        is SignInState.SignInSuccess -> SignInSuccessScreen(state.email) {
-                            signInState = SignInState.SignIn
-                        }
-                    }
+                    SignInScreen()
                 }
             }
         }
     }
 }
 
-// Состояния экрана входа
-sealed class SignInState {
-    object SignIn : SignInState()
-    data class SignInSuccess(val email: String) : SignInState()
-}
 
 @Composable
-fun SignInScreen(onSignIn: (email: String, password: String) -> Unit) {
+fun SignInScreen(modifier: Modifier = Modifier) {
+
+    var Email by remember { mutableStateOf("") }
+    var Password by remember { mutableStateOf("") }
+    var SignedIn by remember { mutableStateOf(false) }
+
+
+    if (SignedIn) {
+        SignInSuccessScreen(Email) {
+            SignedIn = false
+            Email = ""
+            Password = ""
+        }
+    } else {
+        SignInForm(Email, Password) {
+            if (it.isNotBlank()) {
+                Email = Email
+                Password = Password
+                SignedIn = true
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SignInForm(email: String, password: String, onSignIn: (String) -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(16.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-
-        OutlinedTextField(
+        TextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {},
             label = { Text("Email") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+            modifier = Modifier.fillMaxWidth()
         )
-
+        Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {},
             label = { Text("Password") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+            modifier = Modifier.fillMaxWidth()
         )
-
-        Button(
-            onClick = {
-                // Передаем введенные email и password наружу
-                onSignIn(email, password)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text("Sign In")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { onSignIn(email) }) {
+            Text(text = "Sign In")
         }
     }
 }
-
 @Composable
-fun SignInSuccessScreen(email: String, signOutAction: () -> Unit) {
+fun SignInSuccessScreen(email: String, SignInScreen: () -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(16.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Sign In success")
-
-        Text("Email: $email")
-
-        Button(
-            onClick = {
-                // При нажатии кнопки Sign Out вызываем действие signOutAction
-                signOutAction()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text("Sign Out")
+        Text(text = "Sign In success")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "email: $email")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = SignInScreen) {
+            Text(text = "Sign Out")
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun SignInScreenPreview() {
+fun GreetingPreview() {
     IPZ_CW_2_Kovalov_VladislavTheme {
-        SignInScreen(onSignIn = { _, _ -> })
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignInSuccessScreenPreview() {
-    IPZ_CW_2_Kovalov_VladislavTheme {
-        SignInSuccessScreen(email = "example@gmail.com", signOutAction = {})
+        SignInScreen()
     }
 }
