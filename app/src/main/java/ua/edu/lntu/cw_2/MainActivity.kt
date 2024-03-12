@@ -24,15 +24,14 @@ class MainActivity : ComponentActivity() {
                     // Используем LaunchedEffect для отслеживания состояния входа
                     var signInState by remember { mutableStateOf(SignInState.SignIn) }
 
-                    when (signInState) {
-                        SignInState.SignIn -> SignInScreen { email, password ->
-                            // Проверяем, что email и password не пустые
+                    if (signInState is SignInState.SignIn) {
+                        SignInScreen { email, password ->
                             if (email.isNotEmpty() && password.isNotEmpty()) {
                                 signInState = SignInState.SignInSuccess(email)
                             }
                         }
-                        SignInState.SignInSuccess -> SignInSuccessScreen(signOutAction = {
-                            // При нажатии кнопки Sign Out меняем состояние обратно на SignIn
+                    } else if (signInState is SignInState.SignInSuccess) {
+                        SignInSuccessScreen(signOutAction = {
                             signInState = SignInState.SignIn
                         })
                     }
