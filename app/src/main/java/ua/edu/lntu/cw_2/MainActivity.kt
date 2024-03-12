@@ -24,19 +24,16 @@ class MainActivity : ComponentActivity() {
                     // Используем LaunchedEffect для отслеживания состояния входа
                     var signInState by remember { mutableStateOf(SignInState.SignIn) }
 
-                    val content = if (signInState is SignInState.SignIn) {
-                        SignInScreen { email, password ->
+                    when (val state = signInState) {
+                        is SignInState.SignIn -> SignInScreen { email, password ->
                             if (email.isNotEmpty() && password.isNotEmpty()) {
                                 signInState = SignInState.SignInSuccess(email)
                             }
                         }
-                    } else {
-                        SignInSuccessScreen(signOutAction = {
+                        is SignInState.SignInSuccess -> SignInSuccessScreen(state.email) {
                             signInState = SignInState.SignIn
-                        })
+                        }
                     }
-
-                    content()
                 }
             }
         }
@@ -94,7 +91,7 @@ fun SignInScreen(onSignIn: (email: String, password: String) -> Unit) {
 }
 
 @Composable
-fun SignInSuccessScreen(signOutAction: () -> Unit) {
+fun SignInSuccessScreen(email: String, signOutAction: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -104,13 +101,7 @@ fun SignInSuccessScreen(signOutAction: () -> Unit) {
     ) {
         Text("Sign In success")
 
-        // Получаем email из состояния
-        val email = (LocalContext.current as? MainActivity)?.signInState
-            .let { it as? SignInState.SignInSuccess }?.email
-
-        email?.let {
-            Text("Email: $it")
-        }
+        Text("Email: $email")
 
         Button(
             onClick = {
@@ -138,6 +129,6 @@ fun SignInScreenPreview() {
 @Composable
 fun SignInSuccessScreenPreview() {
     IPZ_CW_2_Kovalov_VladislavTheme {
-        SignInSuccessScreen(signOutAction = {})
+        SignInSuccessScreen(email = "example@gmail.com", signOutAction = {})
     }
 }
